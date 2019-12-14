@@ -234,7 +234,7 @@ class Boss:
         self.bullet=loadImage(path+'/images/beam.png')
         self.blast=loadImage(path+'/images/blast.png')
         self.state='alive'
-        self.by=[200,200,200,200,200]
+        self.by=200
         self.x=200
         self.y=10
         self.bx=[self.x+25,self.x+75,self.x+150,self.x+225,self.x+275]
@@ -251,26 +251,26 @@ class Boss:
         if t.time%20==0:
             self.bllt.append([self.bx,self.by])
         for c in range(len(self.bllt)):
-            for i in range(len(self.by)):
-                self.bllt[c][1][i]+=20
-            #self.bllt[c][1]+=20
+            # for i in range(len(self.by)):
+            #     self.bllt[c][1][i]+=20
+            self.bllt[c][1]+=20
             if stage==3:
                 self.bllt[c][0][0]-=8
                 self.bllt[c][0][1]-=4
                 self.bllt[c][0][3]+=4
                 self.bllt[c][0][4]+=8
             for cnt in range(len(self.bx)):
-                image(self.bullet,self.bllt[c][0][cnt],self.bllt[c][1][cnt],30,30)
-                if self.bllt[c][0][cnt] in range(t.s.x,t.s.x+141) and self.bllt[c][1][cnt] in range(900, 950):
+                image(self.bullet,self.bllt[c][0][cnt],self.bllt[c][1],30,30)
+                if self.bllt[c][0][cnt] in range(t.s.x,t.s.x+141) and self.bllt[c][1] in range(900, 950):
                     if t.p.flag==True:
                         t.health+=5
-                        self.bllt[c][1][cnt] = 1000
+                        self.bllt[c][1] = 1000
                     else:
                         image(self.blast,t.s.x,850,150,150)
                         blast.rewind()
                         blast.play()
                         t.health-=20
-                        self.bllt[c][1][cnt] = 1000
+                        self.bllt[c][1] = 1000
                         if t.health<=0:
                             t.state='lost'   
         if stage == 2 or stage==3:
