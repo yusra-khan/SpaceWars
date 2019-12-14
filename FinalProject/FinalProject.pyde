@@ -363,8 +363,11 @@ class Game:
         self.time=1 #keep track of frames
         self.score=0
         self.health=100
-        self.state = "menu"
+        self.state = "initial"
         self.img = loadImage(path+"/images/stage0.jpg")
+        self.ins = loadImage(path+"/images/instructions.png")
+        self.logo = loadImage(path+"/images/logo.png")
+        self.black = loadImage(path+"/images/logo.jpg")
         self.s=SpaceShip(300,850)
         self.e=Enemy()
         self.B=Boss()
@@ -372,9 +375,23 @@ class Game:
         self.p=Powerups()
         
     def display(self):
-        if self.state == 'menu': #display homescreen
+        if self.state == 'initial': #to display logo
+            image(self.black, 50, 350, 600, 300)
+            self.time+=1
+            if self.time==100:
+                self.state='menu'
+                self.time=1
+        elif self.state == 'menu': #display homescreen
             image(self.img, 0, 0)
             self.homescreen()
+        elif self.state == 'instructions': #display instructions page
+            image(self.ins, 0, 0)
+            noFill()
+            stroke(255)
+            rect(590, 25, 100, 40, 7)
+            fill(255)
+            textSize(28)
+            text("BACK", 605, 55) 
         elif self.state == 'play':
             b=Background(self.x1, self.x2, self.y1, self.y2)
             self.x1,self.x2,self.y1,self.y2=b.display()
@@ -437,11 +454,7 @@ class Game:
         textSize(32)
         text("PLAY", 435, 535)
         text("INSTRUCTIONS", 380, 635)
-        fill(255)
-        textFont(font)
-        textSize(120)
-        text("SPACE", 10, 150) #display title
-        text("WARS", 10, 250)
+        image(self.logo, 30, 25, 500, 200)
         stage1.pause()
         stage2.pause()
         stage3.pause()
@@ -533,7 +546,7 @@ t=Game()
         
 def setup():
     size(700, 1000) #initialize screen
-    background(0)
+    background(255)
 
 def draw():
     global stage, highscore
@@ -545,7 +558,11 @@ def mouseClicked():
         if mouseX >= 400 and mouseX <= 550 and mouseY >= 500 and mouseY <= 550:
             t.state = 'play'
             stage = 1
-       # elif mouseX >= 370 and mouseX <= 620 and mouseY >= 600 and mouseY <= 650:
+        elif mouseX >= 370 and mouseX <= 620 and mouseY >= 600 and mouseY <= 650:
+            t.state = 'instructions'
+    if t.state == 'instructions':
+        if mouseX >= 590 and mouseX <= 690 and mouseY >= 25 and mouseY <= 65: #button to go back to menu
+            t.state='menu'
     if t.state == 'lost' or t.state=='win': #reset all variables when game ends
         t.x1=0
         t.x2=0
