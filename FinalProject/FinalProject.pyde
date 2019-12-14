@@ -329,7 +329,7 @@ class Powerups:
         for i in range(len(self.healthlist)):
             image(self.aspirin,self.healthlist[i][0],self.healthlist[i][1],100,100) #display health booster
             self.healthlist[i][1]+=10
-            if self.healthlist[i][0] in range(t.s.x,t.s.x+120) and self.healthlist[i][1] in range(875,950): #restore health if spaceship catches the booster
+            if self.healthlist[i][0] in range(t.s.x-70,t.s.x+120) and self.healthlist[i][1] in range(875,950): #restore health if spaceship catches the booster
                 if t.health<100:
                     t.health=100
                 self.healthlist[i][1]=1000
@@ -341,7 +341,7 @@ class Powerups:
         for j in range(len(self.absorblist)):
             image(self.absorb,self.absorblist[j][0],self.absorblist[j][1],100,100) #display absorber
             self.absorblist[j][1]+=15
-            if self.absorblist[j][0] in range(t.s.x,t.s.x+120) and self.absorblist[j][1] in range(875,925): #bring absorber in effect if spaceship catches it
+            if self.absorblist[j][0] in range(t.s.x-70,t.s.x+120) and self.absorblist[j][1] in range(875,925): #bring absorber in effect if spaceship catches it
                 self.flag=True
                 self.absorblist[j][1]=1000
             if self.flag==True:
