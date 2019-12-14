@@ -8,6 +8,11 @@ stage1 = player.loadFile(path + '/music/Stage1.mp3')
 stage2 = player.loadFile(path + '/music/Stage2.mp3')
 stage3 = player.loadFile(path + '/music/Stage3.mp3')
 slaser = player.loadFile(path + '/music/slaser.mp3')
+elaser = player.loadFile(path + '/music/elaser.mp3')
+gamewin = player.loadFile(path + '/music/gamewin.mp3')
+gamelose = player.loadFile(path + '/music/gamelose.mp3')
+blast = player.loadFile(path + '/music/blast.mp3')
+
 
 class Background:
     def __init__(self, x1, x2, y1, y2):
@@ -81,6 +86,8 @@ class SpaceShip:
             if t.time>=1200 and self.bpos[cnt][1]<=150 and self.bpos[cnt][1]>0 and self.bpos[cnt][0] in range(t.B.x, t.B.x+230):
                 self.hit+=1
                 image(self.blast, self.bpos[cnt][0], 50, 150, 150)
+                blast.rewind()
+                blast.play()
                 self.bpos[cnt][1]=-20
                 if self.hit==40:
                     #t.B.state='dead'
@@ -89,6 +96,8 @@ class SpaceShip:
                 if self.bpos[cnt][1]==110 and self.bpos[cnt][0] in range(t.e.x,t.e.x+125):
                     self.hit+=1
                     image(self.blast, t.e.x, 0, 150, 150)
+                    blast.rewind()
+                    blast.play()
                     if self.hit==2:
                         t.e.state='dead'
                         self.killed=True
@@ -96,11 +105,13 @@ class SpaceShip:
                 if stage==3 and self.bpos[cnt][1]==110 and self.bpos[cnt][0] in range(t.e.x2,t.e.x2+125):
                     self.hit2+=1
                     image(self.blast, t.e.x2, 0, 150, 150)
+                    blast.rewind()
+                    blast.play()
                     if self.hit2==2:
                         t.e.state2='dead'
                         self.killed=True
                         self.bpos[cnt][1]=-20
-                
+        print(self.hit)
         # for cnt in range(len(self.bpos)):
         #     if self.bpos[cnt][1]<=0:
         #         self.bpos[cnt].pop()
@@ -142,9 +153,22 @@ class Enemy:
         if stage == 3:
             image(self.img, self.x2, 0, 250, 150)
             
-        if t.time%20==0:
-            self.epos.append([self.b,self.by])
-            #print(self.epos)
+        if t.time<200:    
+            if t.time%40==0:
+                self.epos.append([self.b,self.by])
+                elaser.rewind()
+                elaser.play()
+        elif t.time<600 and t.time>=200:
+            if t.time%30==0:
+                self.epos.append([self.b,self.by])
+                elaser.rewind()
+                elaser.play()
+        else:
+            if t.time%20==0:
+                self.epos.append([self.b,self.by])
+                elaser.rewind()
+                elaser.play()
+
         for cnt in range(len(self.epos)):
                 # if self.epos[cnt][1]>=1000:
                 #     self.epos[cnt][1]=150
@@ -152,11 +176,17 @@ class Enemy:
             image(self.bullet, self.epos[cnt][0],self.epos[cnt][1],30,30)
             self.epos[cnt][1]+=20
             if self.epos[cnt][0] in range(t.s.x,t.s.x+141) and self.epos[cnt][1] in range(900,950):
-                image(self.blast,t.s.x,850,150,150)
-                t.health-=20
-                self.epos[cnt][1] = 1000
-                if t.health<=0:
-                    t.state='lost'   
+                if t.p.flag==True:
+                    t.health+=5
+                    self.epos[cnt][1] = 1000
+                else:
+                    image(self.blast,t.s.x,850,150,150)
+                    blast.rewind()
+                    blast.play()
+                    t.health-=20
+                    self.epos[cnt][1] = 1000
+                    if t.health<=0:
+                        t.state='lost'   
             
         if stage==3:
             if t.time%20==0:
@@ -168,12 +198,17 @@ class Enemy:
                 image(self.bullet, self.epos2[cnt][0],self.epos2[cnt][1],30,30)
                 self.epos2[cnt][1]+=20
                 if self.epos2[cnt][0] in range(t.s.x,t.s.x+141) and self.epos2[cnt][1] in range(900,950):
-                    image(self.blast,t.s.x,850,150,150)
-                    t.health-=20
-                    self.epos2[cnt][1] = 1000
-                    if t.health<=0:
-                        t.state='lost'   
-                
+                    if t.p.flag==True:
+                        t.health+=5
+                        self.epos2[cnt][1] = 1000
+                    else:
+                        image(self.blast,t.s.x,850,150,150)
+                        blast.rewind()
+                        blast.play()
+                        t.health-=20
+                        self.epos2[cnt][1] = 1000
+                        if t.health<=0:
+                            t.state='lost'                   
         if stage==2:
             self.x+=self.y
             self.b=self.x+105
@@ -199,12 +234,11 @@ class Boss:
         self.bullet=loadImage(path+'/images/beam.png')
         self.blast=loadImage(path+'/images/blast.png')
         self.state='alive'
-        self.by=200
+        self.by=[200,200,200,200,200]
         self.x=200
         self.y=10
         self.bx=[self.x+25,self.x+75,self.x+150,self.x+225,self.x+275]
-        self.bllt=[]
-        self.time=0
+        self.bllt=[]        
         
     def display(self):
         if stage==1:
@@ -213,31 +247,40 @@ class Boss:
             image(self.img2, self.x, 0, 300, 200)
         elif stage==3:
             image(self.img3, self.x, 0, 300, 200)
-        # if self.time<=50:
-        #     rect(400, 500, 150, 50, 7)
-        #     font = loadFont("OCRAExtended-48.vlw")
-        #     fill(0)
-        #     textSize(32)
-        #     text("HA HA", 435, 535)
-
-        self.time+=1
+        
         if t.time%20==0:
             self.bllt.append([self.bx,self.by])
         for c in range(len(self.bllt)):
-            self.bllt[c][1]+=20
+            for i in range(len(self.by)):
+                self.bllt[c][1][i]+=20
+            #self.bllt[c][1]+=20
+            if stage==3:
+                self.bllt[c][0][0]-=8
+                self.bllt[c][0][1]-=4
+                self.bllt[c][0][3]+=4
+                self.bllt[c][0][4]+=8
             for cnt in range(len(self.bx)):
-                image(self.bullet,self.bllt[c][0][cnt],self.bllt[c][1],30,30)
-                if self.bllt[c][0][cnt] in range(t.s.x,t.s.x+141) and self.bllt[c][1] in range(900, 950):
-                    image(self.blast, t.s.x, 850, 150, 150)
-                    t.health-=20
-                    self.bllt[c][1]=1000
-
+                image(self.bullet,self.bllt[c][0][cnt],self.bllt[c][1][cnt],30,30)
+                if self.bllt[c][0][cnt] in range(t.s.x,t.s.x+141) and self.bllt[c][1][cnt] in range(900, 950):
+                    if t.p.flag==True:
+                        t.health+=5
+                        self.bllt[c][1][cnt] = 1000
+                    else:
+                        image(self.blast,t.s.x,850,150,150)
+                        blast.rewind()
+                        blast.play()
+                        t.health-=20
+                        self.bllt[c][1][cnt] = 1000
+                        if t.health<=0:
+                            t.state='lost'   
         if stage == 2 or stage==3:
             self.x+=self.y
             #self.b=self.x+105
             if self.x<10 or self.x>400:
                 self.y=-1*self.y 
-            self.bx=[self.x+25,self.x+75,self.x+150,self.x+225,self.x+275]    
+            self.bx=[self.x+25,self.x+75,self.x+150,self.x+225,self.x+275]             
+            
+               
 
 class Asteroid:
     def __init__(self):
@@ -275,17 +318,64 @@ class Asteroid:
                 self.speed2=1500/self.dim2
         if self.x in range(t.s.x-self.dim+30,t.s.x+120) and self.y in range(875,925):
             image(t.e.blast,t.s.x,850,150,150)
+            blast.rewind()
+            blast.play()
             t.health-=10
             self.y=1000
             if t.health<=0:
                 t.state='lost'
         if stage!=1 and self.x2 in range(t.s.x-self.dim2+30,t.s.x+120) and self.y2 in range(875,925):
             image(t.e.blast,t.s.x,850,150,150)
+            blast.rewind()
+            blast.play()
             t.health-=10
             self.y2=1000
             if t.health<=0:
                 t.state='lost'
+                
+class Powerups:
+    def __init__(self):
+        self.x = 10 * randint(0,60)
+        self.y = 0
+        self.aspirin = loadImage(path + '/images/health.png')
+        self.absorb = loadImage(path + '/images/absorber.png')
+        self.healthlist= []
+        self.absorblist= []
+        self.time=1
+        self.flag=False
+        
+    def health(self):
+        if t.time%900==0:
+            self.x = 10 * randint(0,60)
+            self.healthlist.append([self.x,self.y])
+        
+        for i in range(len(self.healthlist)):
+            image(self.aspirin,self.healthlist[i][0],self.healthlist[i][1],100,100)
+            self.healthlist[i][1]+=10
+            if self.healthlist[i][0] in range(t.s.x,t.s.x+120) and self.healthlist[i][1] in range(875,925):
+                t.health=100
+                self.healthlist[i][1]=1000
+            
+    def absorber(self):
+        if t.time%1300==0:
+            self.x = 10 * randint(0,60)
+            self.absorblist.append([self.x,self.y])
+        for j in range(len(self.absorblist)):
+            image(self.absorb,self.absorblist[j][0],self.absorblist[j][1],100,100)
+            self.absorblist[j][1]+=15
+            if self.absorblist[j][0] in range(t.s.x,t.s.x+120) and self.absorblist[j][1] in range(875,925):
+                self.flag=True
+                self.absorblist[j][1]=1000
+            if self.flag==True:
+                if self.time<=100:
+                    image(self.absorb,t.s.x-25,t.s.y,200,200)
+                    self.time+=1
+                else:
+                    self.flag=False
+                    self.time=1
+        print(t.health)
 
+    
 class Game:
     def __init__(self):
         global stage
@@ -294,7 +384,7 @@ class Game:
         self.x2=0
         self.y1=0
         self.y2=-1000
-        self.time=1
+        self.time=1000
         self.score=0
         self.health=100
         self.state = "menu"
@@ -303,6 +393,7 @@ class Game:
         self.e=Enemy()
         self.B=Boss()
         self.a=Asteroid()
+        self.p=Powerups()
         
     def display(self):
         if self.state == 'menu':
@@ -317,6 +408,8 @@ class Game:
             self.a.display()
             self.scorecounter()
             self.healthpointer()
+            self.p.health()
+            self.p.absorber()
             self.time+=1
             if self.time>=1200:
                 #B=Boss(self.stage)
@@ -339,11 +432,29 @@ class Game:
                 stage1.pause()
                 stage2.pause()
                 stage3.play()
+        elif self.state=='transition':
+            background(0)
+            textSize(100)
+            fill(0,0,255)
+            text("STAGE "+str(stage), 150, 500)
+            self.s.bpos=[]
+            self.e.epos=[]
+            self.e.epos2=[]
+            self.B.bllt=[]
+            self.p.healthlist=[]
+            self.p.absorblist=[]
+            self.time+=1
+            if self.time==100:
+                self.state='play'
+                self.time=1
         else:
             if self.state == 'lost':
                 self.gameover()
+                gamelose.play()
             elif self.state=='win':
                 self.gamewin()
+                gamewin.play()
+
            
             
     def homescreen(self):
@@ -377,8 +488,8 @@ class Game:
                 else:
                     self.score+=50
                     stage+=1
-                    self.B.time=0
                     self.time=1
+                    self.state='transition'
                     #self.s.hit=0
             else:
                 self.score+=10
@@ -422,6 +533,7 @@ class Game:
         stage2.pause()
         stage3.rewind()
         stage3.pause()
+
         
         
     def gamewin(self):
@@ -445,6 +557,7 @@ class Game:
         stage3.rewind()
         stage3.pause()
 
+
 #global stage
 stage=0
 t=Game()
@@ -462,7 +575,7 @@ def mouseClicked():
     if t.state == 'menu':
         if mouseX >= 400 and mouseX <= 550 and mouseY >= 500 and mouseY <= 550:
             t.state = 'play'
-            stage = 3
+            stage = 1
        # elif mouseX >= 370 and mouseX <= 620 and mouseY >= 600 and mouseY <= 650:
     if t.state == 'lost' or t.state=='win':
         t.x1=0
@@ -475,6 +588,15 @@ def mouseClicked():
         t.img = loadImage(path+"/images/stage0.jpg")
         t.s=SpaceShip(300,850)
         t.e=Enemy()
+        t.p=Powerups()
+        t.a=Asteroid()
+        t.B=Boss()
+        if t.state == 'lost':
+            gamelose.rewind()
+            gamelose.pause()
+        elif t.state == 'win':
+            gamewin.rewind()
+            gamewin.pause()
         if mouseX >= 250 and mouseX <= 470 and mouseY >= 550 and mouseY <= 600:
             t.state = 'play'
             stage = 1
